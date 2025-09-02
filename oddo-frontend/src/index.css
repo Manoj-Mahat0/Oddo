@@ -82,3 +82,27 @@ button:focus-visible {
 .backface-hidden {
   backface-visibility: hidden;
 }
+
+.clip-triangle {
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+
+.clip-circle {
+  clip-path: circle(50% at 70% 30%);
+}
+
+.clip-triangle {
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+
+
+.clip-diagonal {
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+
+.clip-hex {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+
+

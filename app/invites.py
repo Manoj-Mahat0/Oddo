@@ -24,7 +24,15 @@ def create_invite(request: schemas.InviteRequest,
     db.add(invite)
     db.commit()
     db.refresh(invite)
-    return {"invite_code": invite.code, "message": "Invite created successfully"}
+
+    # Send email
+    try:
+        utils.send_invite_email(request.email, request.full_name, code)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {e}")
+
+    return {"invite_code": invite.code, "message": f"Invite sent to {request.email}"}
+
 
 @router.post("/signup")
 def signup_with_invite(request: schemas.InviteSignup, db: Session = Depends(get_db)):

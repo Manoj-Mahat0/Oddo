@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-function FlipCard({ img, title, delay, animation }) {
+function FlipCard({ img, title, delay, animation, autoFlip = false }) {
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    if (autoFlip) {
+      // Each card flips at a random interval between 2–6s
+      const interval = setInterval(() => {
+        setFlipped((prev) => !prev);
+      }, Math.floor(Math.random() * 4000) + 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [autoFlip]);
+
   return (
     <div
-      className="group relative w-full h-32 md:h-40 perspective"
+      className="relative w-full h-32 md:h-40 perspective"
       data-aos={animation}
       data-aos-delay={delay}
+      // fallback hover control (works even with autoFlip)
+      onMouseEnter={() => setFlipped(true)}
+      onMouseLeave={() => setFlipped(false)}
     >
-      {/* Inner Card */}
-      <div className="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d group-hover:rotate-y-180">
-        
+      {/* Inner wrapper */}
+      <div
+        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+          flipped ? "rotate-y-180" : ""
+        }`}
+      >
         {/* Front - Image */}
         <div className="absolute inset-0 backface-hidden">
           <img
