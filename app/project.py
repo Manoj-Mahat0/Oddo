@@ -74,32 +74,29 @@ def remove_member(project_id: int, user_id: int,
     return {"message": f"User {user.full_name} removed from project {project.name}"}
 
 @router.get("/")
-def list_invites(db: Session = Depends(get_db),
-                 current_user: models.User = Depends(utils.get_current_user)):
-    if current_user.role != "Admin":
-        raise HTTPException(status_code=403, detail="Only Admin can view invites")
+def list_projects(db: Session = Depends(get_db),
+                  current_user: models.User = Depends(utils.get_current_user)):
+    # Only Admin or Tester allowed
+    if current_user.role not in ["Admin", "Tester"]:
+        raise HTTPException(status_code=403, detail="Only Admin/Tester can view projects")
 
-    invites = db.query(models.Invite).all()
+    projects = db.query(models.Project).all()
 
     results = []
-    for i in invites:
-        # Default response
-        invite_data = {
-            "invite_id": i.id,
-            "email": i.email,
-            "full_name": i.full_name,
-            "code": i.code,
-            "status": "Used" if i.is_used else "Pending",
-            "user_id": None   # will be filled if user exists
+    for p in projects:
+        project_data = {
+            "project_id": p.id,
+            "name": p.name,
+            "description": p.description,
+            "deadline": p.deadline,
+            "created_at": p.created_at,
+            "members": [
+                {"id": u.id, "code": u.email, "role": u.role}
+                for u in p.members
+            ]
         }
-
-        if i.is_used:
-            # find matching user by email
-            user = db.query(models.User).filter(models.User.email == i.email).first()
-            if user:
-                invite_data["user_id"] = user.id
-
-        results.append(invite_data)
+        results.append(project_data)
 
     return results
+
 

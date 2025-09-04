@@ -19,12 +19,17 @@ function Login() {
       // Save token & role
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("id", data.id);
 
       // Redirect based on role
       if (data.role === "Admin") {
         navigate("/admin");
       } else if (data.role === "Developer") {
         navigate("/developer");
+      }else if (data.role === "Tester") {
+        navigate("/tester");
+      }else if (data.role === "Staff") {
+        navigate("/staff");
       } else {
         navigate("/");
       }
