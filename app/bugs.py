@@ -15,8 +15,8 @@ def get_db():
 @router.post("/", response_model=schemas.BugResponse)
 def create_bug(request: schemas.BugCreate, db: Session = Depends(get_db),
                current_user: models.User = Depends(utils.get_current_user)):
-    if current_user.role not in ["Tester", "Admin"]:
-        raise HTTPException(status_code=403, detail="Only Testers/Admin can report bugs")
+    if current_user.role not in ["Tester", "Admin", "Developer"]:
+        raise HTTPException(status_code=403, detail="Only Testers/Admin/Developer can report bugs")
 
     bug = models.Bug(
         description=request.description,

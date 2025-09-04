@@ -6,7 +6,7 @@ function UsersPage() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [form, setForm] = useState({ full_name: "", email: "" });
+  const [form, setForm] = useState({ full_name: "", email: "", code: "" }); // <-- added code
   const [showModal, setShowModal] = useState(false);
 
   // Fetch users
@@ -29,9 +29,9 @@ function UsersPage() {
     setError("");
     setSuccess("");
     try {
-      const { data } = await API.post("/invites/", form);
+      const { data } = await API.post("/invites/", form); // now includes code
       setSuccess(data.message);
-      setForm({ full_name: "", email: "" });
+      setForm({ full_name: "", email: "", code: "" }); // reset form
       setShowModal(false);
       fetchUsers();
     } catch (err) {
@@ -120,6 +120,15 @@ function UsersPage() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              {/* NEW CODE FIELD */}
+              <input
+                type="text"
+                placeholder="Invite Code (e.g. EMP002)"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />

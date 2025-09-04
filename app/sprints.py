@@ -29,3 +29,12 @@ def list_sprints(project_id: int, db: Session = Depends(get_db),
                  current_user: models.User = Depends(utils.get_current_user)):
     sprints = db.query(models.Sprint).filter(models.Sprint.project_id == project_id).all()
     return sprints
+
+@router.get("/", response_model=List[schemas.SprintResponse])
+def list_all_sprints(db: Session = Depends(get_db),
+                     current_user: models.User = Depends(utils.get_current_user)):
+    if current_user.role not in ["Admin", "Tester"]:
+        raise HTTPException(status_code=403, detail="Only Admin can view all sprints")
+
+    sprints = db.query(models.Sprint).all()
+    return sprints

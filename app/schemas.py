@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Literal
+
 # ---------- AUTH ----------
 class AdminSignup(BaseModel):
     full_name: str
@@ -12,18 +13,26 @@ class LoginRequest(BaseModel):
     password: str
 
 class TokenResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    role: str
     access_token: str
     token_type: str
-    role: str
 
 # ---------- INVITES ----------
 class InviteRequest(BaseModel):
     email: EmailStr
     full_name: str
+    code: str   # existing emp/student code
 
 class InviteSignup(BaseModel):
-    code: str
+    # full_name: str
+    # email: EmailStr
     password: str
+    code: str
+    role: Literal["Developer", "Tester", "SEO", "HR", "Accountant","Student","Staff","Intern"]
+
 
 
 

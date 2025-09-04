@@ -13,6 +13,22 @@ project_members = Table(
     Column("user_id", Integer, ForeignKey("users.id"))
 )
 
+# Association: Staff <-> Class (many-to-many)
+staff_classes = Table(
+    "staff_classes",
+    Base.metadata,
+    Column("staff_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("class_id", Integer, ForeignKey("classes.id"), primary_key=True),
+)
+
+# Association: Student <-> Class (many-to-many)
+student_classes = Table(
+    "student_classes",
+    Base.metadata,
+    Column("student_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("class_id", Integer, ForeignKey("classes.id"), primary_key=True),
+)
+
 class User(Base):
     __tablename__ = "users"
 
@@ -98,3 +114,22 @@ class Bug(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     task = relationship("Task", back_populates="bugs")
+# --- Class & Staff/Student Management ---
+
+
+
+class Class(Base):
+    __tablename__ = "classes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+
+    # staff assigned to this class
+    staff = relationship("User", secondary=staff_classes, back_populates="assigned_classes")
+    # students enrolled in this class
+    students = relationship("User", secondary=student_classes, back_populates="enrolled_classes")
+
+
+# Extend User model with reverse relations
+User.assigned_classes = relationship("Class", secondary=staff_classes, back_populates="staff")
+User.enrolled_classes = relationship("Class", secondary=student_classes, back_populates="students")
