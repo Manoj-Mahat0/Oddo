@@ -18,8 +18,7 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="ODDO – Project & Team Management System")
 
 origins = [
-    "http://localhost:5173",  # Vite dev server
-    "http://127.0.0.1:5173",
+    "*",
 ]
 
 app.add_middleware(
