@@ -2,20 +2,86 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../api/client";
 
+// ✅ Updated Toast Component
+function Toast({ title, message, type = "success", onClose, actions = [] }) {
+  useEffect(() => {
+    const t = setTimeout(() => onClose(), 4000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  const bg =
+    type === "success"
+      ? "bg-gray-800 border-green-500"
+      : type === "error"
+      ? "bg-gray-800 border-red-500"
+      : "bg-gray-800 border-blue-500";
+
+  const icon =
+    type === "success" ? "✔️" : type === "error" ? "❌" : "ℹ️";
+
+  return (
+    <div
+      className={`fixed bottom-4 right-4 w-[300px] border-l-4 ${bg} text-white px-4 py-3 rounded-lg shadow-lg flex flex-col gap-2 animate-fade-in`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{icon}</span>
+          <span className="font-semibold">{title}</span>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-white hover:text-gray-400 font-bold"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="text-sm">{message}</div>
+      {actions.length > 0 && (
+        <div className="flex justify-end gap-2 pt-1">
+          {actions.map((action, idx) => (
+            <button
+              key={idx}
+              onClick={action.onClick}
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function UsersPage() {
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [form, setForm] = useState({ full_name: "", email: "", code: "" });
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch users
+  // Toast state
+  const [toast, setToast] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "success",
+    actions: [],
+  });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+
   const fetchUsers = async () => {
     try {
       const { data } = await API.get("/invites/");
       setUsers(data);
     } catch (err) {
-      setError("Failed to fetch users");
+      setToast({
+        show: true,
+        title: "Error",
+        message: "Failed to fetch users",
+        type: "error",
+      });
     }
   };
 
@@ -23,21 +89,38 @@ function UsersPage() {
     fetchUsers();
   }, []);
 
-  // Handle new invite
   const handleInvite = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     try {
       const { data } = await API.post("/invites/", form);
-      setSuccess(data.message);
+      setToast({
+        show: true,
+        title: `"${form.full_name}" details updated`,
+        message: data.message || "Details have been successfully updated.",
+        type: "success",
+        actions: [
+          { label: "Undo", onClick: () => alert("Undo clicked") },
+          { label: "View profile", onClick: () => alert("View profile clicked") },
+        ],
+      });
       setForm({ full_name: "", email: "", code: "" });
       setShowModal(false);
       fetchUsers();
     } catch (err) {
-      setError("Failed to send invite");
+      setToast({
+        show: true,
+        title: "Error",
+        message: "Failed to send invite",
+        type: "error",
+      });
     }
   };
+
+  // Pagination logic
+  const totalPages = Math.ceil(users.length / usersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white">
@@ -56,9 +139,6 @@ function UsersPage() {
           </button>
         </div>
 
-        {error && <p className="text-red-400 mb-4">{error}</p>}
-        {success && <p className="text-green-400 mb-4">{success}</p>}
-
         {/* User Table */}
         <div className="backdrop-blur-md bg-white/5 border border-white/10 p-6 rounded-2xl shadow-xl">
           <h2 className="text-lg font-semibold mb-4 text-blue-300">
@@ -75,7 +155,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {currentUsers.map((u) => (
                 <tr
                   key={u.id}
                   className="border-b border-white/10 hover:bg-white/10 transition"
@@ -106,6 +186,43 @@ function UsersPage() {
               )}
             </tbody>
           </table>
+
+          {/* Pagination Buttons */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600"
+                disabled={currentPage === 1}
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(idx + 1)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === idx + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 hover:bg-gray-600 text-white"
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600"
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
@@ -121,7 +238,9 @@ function UsersPage() {
                 type="text"
                 placeholder="Full Name"
                 value={form.full_name}
-                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, full_name: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -129,7 +248,9 @@ function UsersPage() {
                 type="email"
                 placeholder="Email"
                 value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -137,7 +258,9 @@ function UsersPage() {
                 type="text"
                 placeholder="Invite Code (e.g. EMP002)"
                 value={form.code}
-                onChange={(e) => setForm({ ...form, code: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, code: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -159,6 +282,17 @@ function UsersPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Toast Render */}
+      {toast.show && (
+        <Toast
+          title={toast.title}
+          message={toast.message}
+          type={toast.type}
+          actions={toast.actions}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
       )}
     </div>
   );

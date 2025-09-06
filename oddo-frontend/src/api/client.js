@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://192.168.1.63:8001",
+  // baseURL: "http://192.168.1.63:8001",//local server
+  baseURL: "https://oddo-bhe0.onrender.com",//online server
 });
 
 // Add Authorization header automatically if token exists

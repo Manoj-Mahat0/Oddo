@@ -3,6 +3,9 @@ import Sidebar from "../components/Sidebar";
 import API from "../api/client";
 import "aos/dist/aos.css";
 import AOS from "aos";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function ProjectsPage() {
   const [projects, setProjects] = useState([]);
@@ -14,6 +17,8 @@ function ProjectsPage() {
   const [form, setForm] = useState({ name: "", description: "", deadline: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
@@ -50,17 +55,21 @@ function ProjectsPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true); // disable button
     try {
       const { data } = await API.post("/projects/", form);
       const newProj = { ...data, id: data.project_id || data.id };
       setProjects([...projects, newProj]);
       setForm({ name: "", description: "", deadline: "" });
       setShowModal(false);
-      setSuccess("✅ Project added successfully");
+      toast.success("✅ Project added successfully");
     } catch (err) {
-      setError("❌ Failed to add project");
+      toast.error("❌ Failed to add project");
+    } finally {
+      setLoading(false); // enable button again
     }
   };
+
 
   const handleAddMember = async (userId) => {
     if (!selectedProject) return;
@@ -233,10 +242,13 @@ function ProjectsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 transition"
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
-                  ✅ Add
+                  {loading ? "⏳ Adding..." : "✅ Add"}
                 </button>
+
               </div>
             </form>
           </div>
@@ -279,10 +291,10 @@ function ProjectsPage() {
               {users.filter(
                 (u) => !selectedProject.members.some((m) => m.id === u.id)
               ).length === 0 && (
-                <li className="text-center text-gray-400 text-sm py-3">
-                  🙌 All users are already in this project
-                </li>
-              )}
+                  <li className="text-center text-gray-400 text-sm py-3">
+                    🙌 All users are already in this project
+                  </li>
+                )}
             </ul>
 
             <div className="flex justify-end mt-4">
@@ -296,6 +308,8 @@ function ProjectsPage() {
           </div>
         </div>
       )}
+      <ToastContainer position="bottom-right" autoClose={5000} />
+
     </div>
   );
 }

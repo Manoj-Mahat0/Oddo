@@ -5,6 +5,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { createPortal } from "react-dom";
+import { ToastContainer, toast } from "react-toastify";  // ✅ Toast import
+import "react-toastify/dist/ReactToastify.css";          // ✅ Toast styles
 
 function DragPortal({ children }) {
   if (typeof document === "undefined") return null;
@@ -18,6 +20,7 @@ function AdminBacklogsPage() {
   const [activeSprint, setActiveSprint] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ For disabling Add button
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -34,9 +37,6 @@ function AdminBacklogsPage() {
     { name: "Done", color: "green" },
   ];
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   useEffect(() => {
     AOS.init({ duration: 600, once: true, easing: "ease-in-out" });
     fetchSprints();
@@ -50,7 +50,7 @@ function AdminBacklogsPage() {
       setSprints(data);
       if (data.length > 0) setActiveSprint(data[0].id);
     } catch {
-      setError("❌ Failed to fetch sprints");
+      toast.error("❌ Failed to fetch sprints");
     }
   };
 
@@ -59,7 +59,7 @@ function AdminBacklogsPage() {
       const { data } = await API.get("/users/");
       setUsers(data);
     } catch {
-      setError("❌ Failed to fetch users");
+      toast.error("❌ Failed to fetch users");
     }
   };
 
@@ -68,12 +68,13 @@ function AdminBacklogsPage() {
       const { data } = await API.get("/tasks/full");
       setTasks(data);
     } catch {
-      setError("❌ Failed to fetch tasks");
+      toast.error("❌ Failed to fetch tasks");
     }
   };
 
   const handleAddTask = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ disable button
     try {
       const { data } = await API.post("/tasks/", {
         title: form.title,
@@ -84,9 +85,11 @@ function AdminBacklogsPage() {
       setTasks([...tasks, data]);
       setForm({ title: "", description: "", sprint_id: "", assigned_to: "" });
       setShowModal(false);
-      setSuccess("✅ Task created successfully");
+      toast.success("✅ Task created successfully");
     } catch {
-      setError("❌ Failed to create task");
+      toast.error("❌ Failed to create task");
+    } finally {
+      setLoading(false); // ✅ re-enable button
     }
   };
 
@@ -98,8 +101,9 @@ function AdminBacklogsPage() {
           t.task_id === taskId ? { ...t, status: newStatus } : t
         )
       );
+      toast.success("✅ Task status updated");
     } catch {
-      setError("❌ Failed to update task status");
+      toast.error("❌ Failed to update task status");
     }
   };
 
@@ -160,28 +164,6 @@ function AdminBacklogsPage() {
           >
             ➕ Add Task
           </button>
-        </div>
-
-        {error && <p className="text-red-400 font-medium">{error}</p>}
-        {success && <p className="text-green-400 font-medium">{success}</p>}
-
-        {/* Sprint Tabs */}
-        <div className="sticky top-0 z-20 bg-black/40 backdrop-blur-md py-3">
-          <div className="flex gap-3 border-b border-white/10 pb-3 overflow-x-auto">
-            {sprints.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setActiveSprint(s.id)}
-                className={`px-5 py-2 rounded-full font-semibold transition-all ${
-                  activeSprint === s.id
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Kanban Board */}
@@ -306,74 +288,117 @@ function AdminBacklogsPage() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
           <div className="backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-2xl w-[90%] max-w-md p-6">
             <h2 className="text-xl font-semibold mb-4 text-white">🆕 Add Task</h2>
-            <form onSubmit={handleAddTask} className="space-y-4">
-              <input
-                type="text"
-                placeholder="Title"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              />
-              <textarea
-                placeholder="Description"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                rows="3"
-                required
-              ></textarea>
-              <select
-                value={form.sprint_id}
-                onChange={(e) =>
-                  setForm({ ...form, sprint_id: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              >
-                <option value="">Select Sprint</option>
-                {sprints.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={form.assigned_to}
-                onChange={(e) =>
-                  setForm({ ...form, assigned_to: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              >
-                <option value="">Assign User</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.full_name} ({u.role})
-                  </option>
-                ))}
-              </select>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-white/10 text-gray-300 hover:bg-white/20 transition"
-                >
-                  ❌ Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition"
-                >
-                  ✅ Add
-                </button>
-              </div>
-            </form>
+            <form onSubmit={handleAddTask} className="space-y-5">
+  {/* Title */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-1">
+      Task Title
+    </label>
+    <input
+      type="text"
+      placeholder="Enter task title..."
+      value={form.title}
+      onChange={(e) => setForm({ ...form, title: e.target.value })}
+      className="w-full px-4 py-2 bg-white/10 text-white placeholder-gray-400 
+                 border border-white/20 rounded-xl focus:ring-2 
+                 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+      required
+    />
+  </div>
+
+  {/* Description */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-1">
+      Description
+    </label>
+    <textarea
+      placeholder="Add a short description..."
+      value={form.description}
+      onChange={(e) =>
+        setForm({ ...form, description: e.target.value })
+      }
+      className="w-full px-4 py-2 bg-white/10 text-white placeholder-gray-400
+                 border border-white/20 rounded-xl focus:ring-2 
+                 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+      rows="3"
+      required
+    ></textarea>
+  </div>
+
+  {/* Sprint Select */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-1">
+      Sprint
+    </label>
+    <select
+      value={form.sprint_id}
+      onChange={(e) => setForm({ ...form, sprint_id: e.target.value })}
+      className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 
+                 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                 outline-none transition"
+      required
+    >
+      <option value="">-- Select Sprint --</option>
+      {sprints.map((s) => (
+        <option key={s.id} value={s.id} className="text-black">
+          {s.name}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Assign User */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-1">
+      Assign To
+    </label>
+    <select
+      value={form.assigned_to}
+      onChange={(e) => setForm({ ...form, assigned_to: e.target.value })}
+      className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 
+                 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                 outline-none transition"
+      required
+    >
+      <option value="">-- Select User --</option>
+      {users.map((u) => (
+        <option key={u.id} value={u.id} className="text-black">
+          {u.full_name} ({u.role})
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Buttons */}
+  <div className="flex justify-end gap-3 pt-3">
+    <button
+      type="button"
+      onClick={() => setShowModal(false)}
+      className="px-4 py-2 rounded-xl bg-gray-600/30 text-gray-300 
+                 hover:bg-gray-600/50 transition shadow-sm"
+    >
+      ❌ Cancel
+    </button>
+    <button
+      type="submit"
+      disabled={loading}
+      className={`px-5 py-2 rounded-xl bg-gradient-to-r from-green-500 
+                  to-emerald-600 text-white shadow-md hover:shadow-lg 
+                  transition-all duration-200 ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+    >
+      {loading ? "⏳ Adding..." : "✅ Add Task"}
+    </button>
+  </div>
+</form>
+
           </div>
         </div>
       )}
+
+      {/* ✅ Toast container */}
+      <ToastContainer position="bottom-right" autoClose={5000} />
     </div>
   );
 }

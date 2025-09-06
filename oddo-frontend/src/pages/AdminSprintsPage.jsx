@@ -3,6 +3,9 @@ import Sidebar from "../components/Sidebar";
 import API from "../api/client";
 import "aos/dist/aos.css";
 import AOS from "aos";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function AdminSprintsPage() {
   const [projects, setProjects] = useState([]);
@@ -16,6 +19,8 @@ function AdminSprintsPage() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
@@ -53,15 +58,18 @@ function AdminSprintsPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true); // disable button
 
     const project = projects.find((p) => p.id === Number(form.project_id));
     if (!project) {
-      setError("❌ Please select a valid project");
+      toast.error("❌ Please select a valid project");
+      setLoading(false);
       return;
     }
 
     if (new Date(form.end_date) > new Date(project.deadline)) {
-      setError("⚠️ Sprint end date cannot exceed project deadline");
+      toast.error("⚠️ Sprint end date cannot exceed project deadline");
+      setLoading(false);
       return;
     }
 
@@ -74,11 +82,14 @@ function AdminSprintsPage() {
       setSprints([...sprints, data]);
       setForm({ name: "", project_id: "", end_date: "" });
       setShowModal(false);
-      setSuccess("✅ Sprint created successfully");
+      toast.success("✅ Sprint created successfully");
     } catch (err) {
-      setError("❌ Failed to create sprint");
+      toast.error("❌ Failed to create sprint");
+    } finally {
+      setLoading(false); // enable button again
     }
   };
+
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black text-white">
@@ -167,20 +178,20 @@ function AdminSprintsPage() {
 
               <select
                 value={form.project_id}
-                onChange={(e) =>
-                  setForm({ ...form, project_id: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, project_id: e.target.value })}
                 className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="">Select Project</option>
+                <option value="" className="text-black bg-white">
+                  Select Project
+                </option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (Deadline:{" "}
-                    {new Date(p.deadline).toLocaleDateString()})
+                  <option key={p.id} value={p.id} className="text-black bg-white">
+                    {p.name} (Deadline: {new Date(p.deadline).toLocaleDateString()})
                   </option>
                 ))}
               </select>
+
 
               <input
                 type="date"
@@ -202,15 +213,19 @@ function AdminSprintsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 transition"
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
-                  ✅ Create
+                  {loading ? "⏳ Creating..." : "✅ Create"}
                 </button>
+
               </div>
             </form>
           </div>
         </div>
       )}
+      <ToastContainer position="bottom-right" autoClose={5000} />
     </div>
   );
 }

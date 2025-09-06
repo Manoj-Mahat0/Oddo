@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/client";
 import Sidebar from "../components/Sidebar";
+import { ToastContainer, toast } from "react-toastify";  // ✅ Toast import
+import "react-toastify/dist/ReactToastify.css";          // ✅ Toast styles
 
 function Course() {
   const [classes, setClasses] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [classStaff, setClassStaff] = useState({}); // {classId: [staff list]}
+  const [classStaff, setClassStaff] = useState({});
   const [loading, setLoading] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [newClassName, setNewClassName] = useState("");
+  const [saving, setSaving] = useState(false); // ✅ To disable save button
 
-  const [selectedClass, setSelectedClass] = useState(null); // for assign modal
+  const [selectedClass, setSelectedClass] = useState(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
 
   // Fetch all classes
@@ -23,6 +26,7 @@ function Course() {
       setClasses(res.data);
     } catch (err) {
       console.error("Error fetching classes:", err);
+      toast.error("❌ Failed to fetch classes");
     }
     setLoading(false);
   };
@@ -34,6 +38,7 @@ function Course() {
       setStaff(res.data);
     } catch (err) {
       console.error("Error fetching staff:", err);
+      toast.error("❌ Failed to fetch staff");
     }
   };
 
@@ -44,19 +49,25 @@ function Course() {
       setClassStaff((prev) => ({ ...prev, [classId]: res.data }));
     } catch (err) {
       console.error("Error fetching class staff:", err);
+      toast.error("❌ Failed to fetch class staff");
     }
   };
 
   // Add class
   const addClass = async () => {
     if (!newClassName.trim()) return;
+    setSaving(true); // ✅ Disable button
     try {
       await API.post(`/classes/?name=${encodeURIComponent(newClassName)}`);
+      toast.success("✅ Class added successfully");
       setShowAddModal(false);
       setNewClassName("");
       fetchClasses();
     } catch (err) {
       console.error("Error adding class:", err);
+      toast.error("❌ Failed to add class");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -64,10 +75,12 @@ function Course() {
   const deleteClass = async (id) => {
     try {
       await API.delete(`/classes/${id}`);
+      toast.success("🗑️ Class deleted successfully");
       setShowDeleteModal(null);
       fetchClasses();
     } catch (err) {
       console.error("Error deleting class:", err);
+      toast.error("❌ Failed to delete class");
     }
   };
 
@@ -75,10 +88,12 @@ function Course() {
   const assignStaff = async (staffId, classId) => {
     try {
       await API.post(`/staff/${staffId}/assign/${classId}`);
+      toast.success("✅ Staff assigned successfully");
       fetchClassStaff(classId);
       setShowAssignModal(false);
     } catch (err) {
       console.error("Error assigning staff:", err);
+      toast.error("❌ Failed to assign staff");
     }
   };
 
@@ -86,9 +101,11 @@ function Course() {
   const revokeStaff = async (staffId, classId) => {
     try {
       await API.delete(`/staff/${staffId}/revoke/${classId}`);
+      toast.info("👤 Staff revoked");
       fetchClassStaff(classId);
     } catch (err) {
       console.error("Error revoking staff:", err);
+      toast.error("❌ Failed to revoke staff");
     }
   };
 
@@ -184,9 +201,14 @@ function Course() {
                 </button>
                 <button
                   onClick={addClass}
-                  className="px-4 py-2 bg-indigo-600 rounded-xl hover:bg-indigo-700"
+                  disabled={saving} // ✅ Disabled when saving
+                  className={`px-4 py-2 rounded-xl ${
+                    saving
+                      ? "bg-gray-500 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
                 >
-                  Save
+                  {saving ? "⏳ Saving..." : "Save"}
                 </button>
               </div>
             </div>
@@ -251,6 +273,9 @@ function Course() {
           </div>
         )}
       </main>
+
+      {/* ✅ Toast container */}
+      <ToastContainer position="bottom-right" autoClose={5000} theme="colored" />
     </div>
   );
 }
