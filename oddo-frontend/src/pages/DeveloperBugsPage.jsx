@@ -62,7 +62,7 @@ function DeveloperBugsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white">
       {/* Sidebar */}
       <div className="w-64 h-screen sticky top-0">
         <DeveloperSidebar />
@@ -70,11 +70,13 @@ function DeveloperBugsPage() {
 
       {/* Main */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">🐞 My Bugs</h1>
+        <h1 className="text-3xl font-bold mb-6">🐞 My Bugs</h1>
 
         {/* Task Selector */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Select Task</label>
+          <label className="block text-sm font-medium mb-2 text-white/80">
+            Select Task
+          </label>
           <select
             value={selectedTask?.id || ""}
             onChange={(e) => {
@@ -82,10 +84,10 @@ function DeveloperBugsPage() {
               setSelectedTask(task);
               fetchBugs(task.id);
             }}
-            className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+            className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white focus:ring-2 focus:ring-purple-500 outline-none"
           >
             {tasks.map((t) => (
-              <option key={t.id} value={t.id}>
+              <option key={t.id} value={t.id} className="bg-gray-900 text-white">
                 {t.title} ({t.status})
               </option>
             ))}
@@ -94,7 +96,7 @@ function DeveloperBugsPage() {
 
         {/* Bug List */}
         {selectedTask && (
-          <div className="bg-white rounded-xl shadow p-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
             <h2 className="text-xl font-semibold mb-4">
               Bugs for: {selectedTask.title}
             </h2>
@@ -103,15 +105,15 @@ function DeveloperBugsPage() {
               {bugs.map((bug) => (
                 <li
                   key={bug.id}
-                  className="flex justify-between items-center border rounded p-2"
+                  className="flex justify-between items-center bg-white/5 rounded-lg px-4 py-2 border border-white/10"
                 >
                   <span>{bug.description}</span>
                   <button
                     onClick={() => toggleStatus(bug)}
-                    className={`px-2 py-1 text-xs rounded ${
+                    className={`px-3 py-1 text-xs rounded-full font-medium transition ${
                       bug.status === "Open"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-green-100 text-green-600"
+                        ? "bg-red-500/30 text-red-300 hover:bg-red-500/50"
+                        : "bg-green-500/30 text-green-300 hover:bg-green-500/50"
                     }`}
                   >
                     {bug.status}
@@ -119,7 +121,7 @@ function DeveloperBugsPage() {
                 </li>
               ))}
               {bugs.length === 0 && (
-                <p className="text-gray-500 text-sm">No bugs yet</p>
+                <p className="text-white/60 text-sm">No bugs yet</p>
               )}
             </ul>
 
@@ -130,12 +132,12 @@ function DeveloperBugsPage() {
                 placeholder="New bug description"
                 value={newBug}
                 onChange={(e) => setNewBug(e.target.value)}
-                className="flex-1 border rounded px-3 py-2"
+                className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/50 focus:ring-2 focus:ring-purple-500 outline-none"
                 required
               />
               <button
                 type="submit"
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700"
+                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition"
               >
                 ➕ Add
               </button>

@@ -47,7 +47,7 @@ function Login() {
           className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800 rounded-l-2xl border-r border-gray-700"
           data-aos="fade-right"
         >
-          <h2 className="text-3xl font-extrabold text-blue-400 mb-8">Oddo</h2>
+          <h2 className="text-3xl font-extrabold text-blue-400 mb-8">E-Digital</h2>
 
           <h3
             className="text-3xl font-bold text-white mb-2"

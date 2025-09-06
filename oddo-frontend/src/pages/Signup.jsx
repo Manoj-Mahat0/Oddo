@@ -55,7 +55,7 @@ function Signup() {
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-gray-700 shadow-2xl flex w-[95%] max-w-6xl overflow-hidden">
         {/* Left Side - Form */}
         <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800 rounded-l-2xl border-r border-gray-700">
-          <h2 className="text-3xl font-extrabold text-blue-400 mb-8">Oddo</h2>
+          <h2 className="text-3xl font-extrabold text-blue-400 mb-8">E-Digital</h2>
 
           <h3 className="text-3xl font-bold text-white mb-2">
             Create an Account ✨

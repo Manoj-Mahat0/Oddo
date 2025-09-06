@@ -13,7 +13,6 @@ function DeveloperBacklogsPage() {
     const [projects, setProjects] = useState([]);
     const [sprints, setSprints] = useState([]);
     const [activeSprint, setActiveSprint] = useState(null);
-
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState({ title: "", description: "", sprint_id: "" });
 
@@ -49,10 +48,9 @@ function DeveloperBacklogsPage() {
                 title: form.title,
                 description: form.description,
                 sprint_id: Number(form.sprint_id),
-                assigned_to: Number(localStorage.getItem("id")), // 👈 assign logged-in user
+                assigned_to: Number(localStorage.getItem("id")),
             });
 
-            // Add task into sprint locally
             setSprints(
                 sprints.map((s) =>
                     s.sprint_id === Number(form.sprint_id)
@@ -94,35 +92,35 @@ function DeveloperBacklogsPage() {
     const getColor = (color, variant = "header") => {
         const map = {
             gray: {
-                header: "bg-gray-100 text-gray-700",
-                card: "bg-gray-50 border border-gray-200",
+                header: "bg-gray-700 text-gray-100",
+                card: "bg-gray-800 border border-gray-600 text-gray-100",
             },
             blue: {
-                header: "bg-blue-100 text-blue-700",
-                card: "bg-blue-50 border border-blue-200",
+                header: "bg-blue-700 text-blue-100",
+                card: "bg-blue-800 border border-blue-600 text-blue-100",
             },
             purple: {
-                header: "bg-purple-100 text-purple-700",
-                card: "bg-purple-50 border border-purple-200",
+                header: "bg-purple-700 text-purple-100",
+                card: "bg-purple-800 border border-purple-600 text-purple-100",
             },
             yellow: {
-                header: "bg-yellow-100 text-yellow-700",
-                card: "bg-yellow-50 border border-yellow-200",
+                header: "bg-yellow-600 text-yellow-50",
+                card: "bg-yellow-700 border border-yellow-500 text-yellow-50",
             },
             orange: {
-                header: "bg-orange-100 text-orange-700",
-                card: "bg-orange-50 border border-orange-200",
+                header: "bg-orange-700 text-orange-100",
+                card: "bg-orange-800 border border-orange-600 text-orange-100",
             },
             green: {
-                header: "bg-green-100 text-green-700",
-                card: "bg-green-50 border border-green-200",
+                header: "bg-green-700 text-green-100",
+                card: "bg-green-800 border border-green-600 text-green-100",
             },
         };
         return map[color][variant];
     };
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+        <div className="flex h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
             {/* Sidebar */}
             <div className="w-64 h-screen sticky top-0">
                 <DeveloperSidebar />
@@ -131,12 +129,12 @@ function DeveloperBacklogsPage() {
             {/* Main */}
             <main className="flex-1 h-screen overflow-y-auto p-8 space-y-6">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold text-gray-800">
+                    <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                         👨‍💻 Developer Backlogs
                     </h1>
                     <button
                         onClick={() => setShowModal(true)}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg px-6 py-2 shadow hover:scale-95 transition"
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg px-6 py-2 shadow hover:scale-95 transition"
                     >
                         ➕ Add Task
                     </button>
@@ -145,20 +143,20 @@ function DeveloperBacklogsPage() {
                 {/* Project Info */}
                 {projects.map((p) => (
                     <div key={p.project_id} className="mb-4">
-                        <h2 className="text-xl font-semibold">{p.name}</h2>
-                        <p className="text-gray-600">{p.description}</p>
+                        <h2 className="text-xl font-semibold text-purple-300">{p.name}</h2>
+                        <p className="text-gray-400">{p.description}</p>
                     </div>
                 ))}
 
                 {/* Sprint Tabs */}
-                <div className="flex gap-3 border-b pb-2 overflow-x-auto">
+                <div className="flex gap-3 border-b border-gray-700 pb-2 overflow-x-auto">
                     {sprints.map((s) => (
                         <button
                             key={s.sprint_id}
                             onClick={() => setActiveSprint(s.sprint_id)}
-                            className={`px-4 py-2 rounded-full font-medium ${activeSprint === s.sprint_id
-                                    ? "bg-purple-600 text-white"
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            className={`px-4 py-2 rounded-full font-medium transition ${activeSprint === s.sprint_id
+                                    ? "bg-purple-700 text-white"
+                                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                                 }`}
                         >
                             {s.name}
@@ -177,7 +175,7 @@ function DeveloperBacklogsPage() {
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className="w-72 bg-white rounded-xl shadow p-4 flex flex-col gap-4 min-h-[500px]"
+                                                className="w-72 bg-black/50 backdrop-blur-xl rounded-xl shadow-lg p-4 flex flex-col gap-4 min-h-[500px] border border-gray-700"
                                             >
                                                 {/* Column Header */}
                                                 <h3
@@ -206,7 +204,7 @@ function DeveloperBacklogsPage() {
                                                                             ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}
-                                                                            className={`rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-grab ${getColor(
+                                                                            className={`rounded-lg p-4 shadow-md hover:shadow-purple-500/20 transition cursor-grab ${getColor(
                                                                                 color,
                                                                                 "card"
                                                                             )} ${snapshot.isDragging
@@ -215,13 +213,12 @@ function DeveloperBacklogsPage() {
                                                                                 }`}
                                                                             style={{
                                                                                 ...provided.draggableProps.style,
-                                                                                width: "250px", // ✅ compact width
+                                                                                width: "250px",
                                                                                 pointerEvents: "auto",
                                                                             }}
                                                                         >
-                                                                            {/* Title + Status Badge */}
                                                                             <div className="flex justify-between items-center">
-                                                                                <h4 className="font-semibold text-gray-800">
+                                                                                <h4 className="font-semibold">
                                                                                     {t.title}
                                                                                 </h4>
                                                                                 <span
@@ -233,21 +230,17 @@ function DeveloperBacklogsPage() {
                                                                                     {t.status}
                                                                                 </span>
                                                                             </div>
-
-                                                                            {/* Description */}
-                                                                            <p className="text-sm text-gray-700 mt-1">
+                                                                            <p className="text-sm mt-1">
                                                                                 {t.description}
                                                                             </p>
 
-                                                                            {/* Bugs */}
                                                                             {t.bugs?.filter((b) => b.status === "Open").length > 0 && (
                                                                                 <div className="mt-3">
-                                                                                    <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 font-medium">
+                                                                                    <span className="text-xs px-2 py-1 rounded bg-red-700 text-red-100 font-medium">
                                                                                         🐞 {t.bugs.filter((b) => b.status === "Open").length} Open Bugs
                                                                                     </span>
                                                                                 </div>
                                                                             )}
-
                                                                         </div>
                                                                     );
                                                                     return snapshot.isDragging ? (
@@ -272,16 +265,16 @@ function DeveloperBacklogsPage() {
 
             {/* Add Task Modal */}
             {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-                    <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6 animate-fadeIn">
-                        <h2 className="text-xl font-semibold mb-4">🆕 Add Task</h2>
+                <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+                    <div className="bg-black/80 backdrop-blur-xl rounded-2xl shadow-xl w-[90%] max-w-md p-6 border border-gray-700">
+                        <h2 className="text-xl font-semibold text-purple-300 mb-4">🆕 Add Task</h2>
                         <form onSubmit={handleAddTask} className="space-y-4">
                             <input
                                 type="text"
                                 placeholder="Title"
                                 value={form.title}
                                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-2 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                 required
                             />
                             <textarea
@@ -290,7 +283,7 @@ function DeveloperBacklogsPage() {
                                 onChange={(e) =>
                                     setForm({ ...form, description: e.target.value })
                                 }
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-2 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                 rows="3"
                                 required
                             ></textarea>
@@ -299,7 +292,7 @@ function DeveloperBacklogsPage() {
                                 onChange={(e) =>
                                     setForm({ ...form, sprint_id: e.target.value })
                                 }
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-2 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                 required
                             >
                                 <option value="">Select Sprint</option>
@@ -313,13 +306,13 @@ function DeveloperBacklogsPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+                                    className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition"
                                 >
                                     ❌ Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow hover:scale-95 transition"
+                                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-700 text-white shadow hover:scale-95 transition"
                                 >
                                     ✅ Add
                                 </button>

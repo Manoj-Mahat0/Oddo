@@ -89,7 +89,7 @@ function TesterBugsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-black via-[#0a0a0f] to-[#0f172a] text-white">
       {/* Sidebar */}
       <div className="w-64 h-screen sticky top-0">
         <TesterSidebar />
@@ -97,17 +97,21 @@ function TesterBugsPage() {
 
       {/* Main */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">🐞 Tester Bugs</h1>
+        <h1 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">
+          🐞 Tester Bugs
+        </h1>
 
         {/* Selectors */}
         <div className="grid md:grid-cols-3 gap-4 mb-6">
           {/* Project */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Project</label>
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+            <label className="block text-sm font-medium mb-2 text-white/80">
+              Project
+            </label>
             <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
+              className="w-full px-4 py-2 rounded-lg bg-black/40 text-white border border-white/20 focus:ring-2 focus:ring-pink-500 outline-none"
             >
               <option value="">Select Project</option>
               {projects.map((p) => (
@@ -119,12 +123,14 @@ function TesterBugsPage() {
           </div>
 
           {/* Sprint */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Sprint</label>
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+            <label className="block text-sm font-medium mb-2 text-white/80">
+              Sprint
+            </label>
             <select
               value={selectedSprint}
               onChange={(e) => setSelectedSprint(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
+              className="w-full px-4 py-2 rounded-lg bg-black/40 text-white border border-white/20 focus:ring-2 focus:ring-pink-500 outline-none"
             >
               <option value="">Select Sprint</option>
               {sprints
@@ -138,12 +144,14 @@ function TesterBugsPage() {
           </div>
 
           {/* Task */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Task</label>
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+            <label className="block text-sm font-medium mb-2 text-white/80">
+              Task
+            </label>
             <select
               value={selectedTask}
               onChange={(e) => handleTaskSelect(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
+              className="w-full px-4 py-2 rounded-lg bg-black/40 text-white border border-white/20 focus:ring-2 focus:ring-pink-500 outline-none"
             >
               <option value="">Select Task</option>
               {tasks
@@ -159,28 +167,28 @@ function TesterBugsPage() {
 
         {/* Bug List */}
         {selectedTask && (
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/10">
+            <h2 className="text-xl font-semibold mb-4 text-white/90">
               Bugs for Task {selectedTask}
             </h2>
             <ul className="space-y-2 mb-4">
               {bugs.map((bug) => (
                 <li
                   key={bug.id}
-                  className="flex justify-between items-center border rounded p-3"
+                  className="flex justify-between items-center border border-white/10 rounded-xl p-3 bg-white/5 hover:bg-white/10 transition"
                 >
                   <div>
                     <p className="font-medium">{bug.description}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-white/60">
                       Reported: {new Date(bug.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <button
                     onClick={() => toggleStatus(bug)}
-                    className={`px-3 py-1 text-sm rounded ${
+                    className={`px-3 py-1 text-sm rounded-lg shadow transition ${
                       bug.status === "Open"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-green-100 text-green-600"
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
                     }`}
                   >
                     {bug.status}
@@ -188,7 +196,7 @@ function TesterBugsPage() {
                 </li>
               ))}
               {bugs.length === 0 && (
-                <p className="text-gray-500">No bugs found for this task</p>
+                <p className="text-white/60">No bugs found for this task</p>
               )}
             </ul>
 
@@ -199,12 +207,12 @@ function TesterBugsPage() {
                 placeholder="New bug description"
                 value={newBug}
                 onChange={(e) => setNewBug(e.target.value)}
-                className="flex-1 border rounded px-3 py-2"
+                className="flex-1 bg-black/40 text-white border border-white/20 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-500"
                 required
               />
               <button
                 type="submit"
-                className="bg-pink-600 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-700"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg shadow hover:from-pink-600 hover:to-purple-700 transition"
               >
                 ➕ Add
               </button>

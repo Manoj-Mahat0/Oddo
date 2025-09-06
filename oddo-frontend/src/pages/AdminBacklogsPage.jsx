@@ -6,7 +6,6 @@ import "aos/dist/aos.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { createPortal } from "react-dom";
 
-// 🚀 Portal for dragging above everything
 function DragPortal({ children }) {
   if (typeof document === "undefined") return null;
   return createPortal(children, document.body);
@@ -111,41 +110,40 @@ function AdminBacklogsPage() {
     updateTaskStatus(taskId, newStatus);
   };
 
-  // 🎨 Color map for headers + cards
   const getColor = (color, variant = "header") => {
     const map = {
       gray: {
-        header: "bg-gray-100 text-gray-700",
-        card: "bg-gray-50 border border-gray-300",
+        header: "bg-gray-700 text-gray-100",
+        card: "bg-gray-800 border border-gray-600 text-gray-100",
       },
       blue: {
-        header: "bg-blue-100 text-blue-700",
-        card: "bg-blue-50 border border-blue-300",
+        header: "bg-blue-700 text-white",
+        card: "bg-blue-900/60 border border-blue-500 text-blue-100",
       },
       purple: {
-        header: "bg-purple-100 text-purple-700",
-        card: "bg-purple-50 border border-purple-300",
+        header: "bg-purple-700 text-white",
+        card: "bg-purple-900/60 border border-purple-500 text-purple-100",
       },
       yellow: {
-        header: "bg-yellow-100 text-yellow-700",
-        card: "bg-yellow-50 border border-yellow-300",
+        header: "bg-yellow-600 text-black",
+        card: "bg-yellow-800/60 border border-yellow-500 text-yellow-100",
       },
       orange: {
-        header: "bg-orange-100 text-orange-700",
-        card: "bg-orange-50 border border-orange-300",
+        header: "bg-orange-700 text-white",
+        card: "bg-orange-900/60 border border-orange-500 text-orange-100",
       },
       green: {
-        header: "bg-green-100 text-green-700",
-        card: "bg-green-50 border border-green-300",
+        header: "bg-green-700 text-white",
+        card: "bg-green-900/60 border border-green-500 text-green-100",
       },
     };
     return map[color][variant];
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black text-white">
       {/* Sidebar */}
-      <div className="w-64 h-screen sticky top-0 border-r bg-white shadow-md">
+      <div className="w-64 h-screen sticky top-0 border-r border-white/10 bg-black/40 backdrop-blur-xl shadow-lg">
         <Sidebar />
       </div>
 
@@ -153,23 +151,23 @@ function AdminBacklogsPage() {
       <main className="flex-1 h-screen overflow-y-auto p-8 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold flex items-center gap-2 text-gray-800">
+          <h1 className="text-3xl font-bold flex items-center gap-2 drop-shadow-lg">
             📌 Backlogs
           </h1>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg px-6 py-2 shadow hover:scale-95 transition-all"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl px-6 py-2 shadow-lg hover:scale-95 transition"
           >
             ➕ Add Task
           </button>
         </div>
 
-        {error && <p className="text-red-500 font-medium">{error}</p>}
-        {success && <p className="text-green-600 font-medium">{success}</p>}
+        {error && <p className="text-red-400 font-medium">{error}</p>}
+        {success && <p className="text-green-400 font-medium">{success}</p>}
 
-        {/* Sprint Tabs (Sticky) */}
-        <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-100 to-gray-200 py-3">
-          <div className="flex gap-3 border-b pb-3 overflow-x-auto">
+        {/* Sprint Tabs */}
+        <div className="sticky top-0 z-20 bg-black/40 backdrop-blur-md py-3">
+          <div className="flex gap-3 border-b border-white/10 pb-3 overflow-x-auto">
             {sprints.map((s) => (
               <button
                 key={s.id}
@@ -177,7 +175,7 @@ function AdminBacklogsPage() {
                 className={`px-5 py-2 rounded-full font-semibold transition-all ${
                   activeSprint === s.id
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-white/10 text-gray-300 hover:bg-white/20"
                 }`}
               >
                 {s.name}
@@ -197,7 +195,7 @@ function AdminBacklogsPage() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="w-72 rounded-2xl bg-white border p-4 shadow-sm min-h-[500px] flex flex-col gap-4"
+                        className="w-72 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 p-4 shadow-lg min-h-[500px] flex flex-col gap-4"
                         data-aos="fade-up"
                       >
                         {/* Column Header */}
@@ -234,12 +232,12 @@ function AdminBacklogsPage() {
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        className={`rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-grab ${getColor(
+                                        className={`rounded-xl p-4 shadow-md hover:shadow-xl transition-all cursor-grab ${getColor(
                                           color,
                                           "card"
                                         )} ${
                                           snapshot.isDragging
-                                            ? "z-[99999] scale-105 shadow-xl fixed"
+                                            ? "z-[99999] scale-105 shadow-2xl"
                                             : ""
                                         }`}
                                         style={{
@@ -247,41 +245,35 @@ function AdminBacklogsPage() {
                                           width: snapshot.isDragging
                                             ? "280px"
                                             : "100%",
-                                          maxWidth: "100%",
-                                          pointerEvents: "auto",
                                         }}
                                       >
-                                        {/* Title + Status */}
                                         <div className="flex justify-between items-start">
-                                          <h4 className="font-semibold text-gray-800">
+                                          <h4 className="font-semibold">
                                             {t.title}
                                           </h4>
-                                          <span className="px-2 py-1 text-xs rounded-full bg-white/50 text-gray-700 border">
+                                          <span className="px-2 py-1 text-xs rounded-full bg-white/20 border border-white/20">
                                             {t.status}
                                           </span>
                                         </div>
 
-                                        {/* Description */}
-                                        <p className="text-sm text-gray-700 mt-1">
+                                        <p className="text-sm opacity-80 mt-1">
                                           {t.description}
                                         </p>
 
-                                        {/* Assigned User */}
                                         {user && (
                                           <div className="flex items-center mt-3 gap-2">
                                             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center text-xs">
                                               {user.full_name.charAt(0)}
                                             </div>
-                                            <span className="text-xs text-gray-800 font-medium">
+                                            <span className="text-xs opacity-80 font-medium">
                                               {user.full_name}
                                             </span>
                                           </div>
                                         )}
 
-                                        {/* Bugs */}
                                         {t.bugs?.length > 0 && (
                                           <div className="mt-3">
-                                            <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 font-medium">
+                                            <span className="text-xs px-2 py-1 rounded bg-red-500/30 text-red-300 font-medium">
                                               🐞 {t.bugs.length} Bugs
                                             </span>
                                           </div>
@@ -311,16 +303,16 @@ function AdminBacklogsPage() {
 
       {/* Add Task Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6 animate-fadeIn">
-            <h2 className="text-xl font-semibold mb-4">🆕 Add Task</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
+          <div className="backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-2xl w-[90%] max-w-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-white">🆕 Add Task</h2>
             <form onSubmit={handleAddTask} className="space-y-4">
               <input
                 type="text"
                 placeholder="Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
               <textarea
@@ -329,7 +321,7 @@ function AdminBacklogsPage() {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 rows="3"
                 required
               ></textarea>
@@ -338,7 +330,7 @@ function AdminBacklogsPage() {
                 onChange={(e) =>
                   setForm({ ...form, sprint_id: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               >
                 <option value="">Select Sprint</option>
@@ -353,7 +345,7 @@ function AdminBacklogsPage() {
                 onChange={(e) =>
                   setForm({ ...form, assigned_to: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               >
                 <option value="">Assign User</option>
@@ -367,13 +359,13 @@ function AdminBacklogsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+                  className="px-4 py-2 rounded-lg bg-white/10 text-gray-300 hover:bg-white/20 transition"
                 >
                   ❌ Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow hover:scale-95 transition"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition"
                 >
                   ✅ Add
                 </button>

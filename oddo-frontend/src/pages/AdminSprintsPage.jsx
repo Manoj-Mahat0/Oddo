@@ -17,12 +17,10 @@ function AdminSprintsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Init AOS animations
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
 
-  // Fetch projects & sprints
   const fetchProjectsAndSprints = async () => {
     try {
       const { data } = await API.get("/projects/");
@@ -32,7 +30,6 @@ function AdminSprintsPage() {
       }));
       setProjects(normalized);
 
-      // fetch sprints per project
       let allSprints = [];
       for (let project of normalized) {
         try {
@@ -52,7 +49,6 @@ function AdminSprintsPage() {
     fetchProjectsAndSprints();
   }, []);
 
-  // Add Sprint
   const handleAddSprint = async (e) => {
     e.preventDefault();
     setError("");
@@ -64,7 +60,6 @@ function AdminSprintsPage() {
       return;
     }
 
-    // Validate sprint end date ≤ project deadline
     if (new Date(form.end_date) > new Date(project.deadline)) {
       setError("⚠️ Sprint end date cannot exceed project deadline");
       return;
@@ -86,27 +81,29 @@ function AdminSprintsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar fixed */}
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+      {/* Sidebar */}
       <div className="w-64 h-screen sticky top-0">
         <Sidebar />
       </div>
 
-      {/* Main content scrollable */}
+      {/* Main content */}
       <main className="flex-1 h-screen overflow-y-auto p-8 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">🏃‍♂️ Sprints</h1>
+          <h1 className="text-3xl font-bold text-white drop-shadow-lg">
+            🏃‍♂️ Sprints
+          </h1>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg px-6 py-2 shadow hover:scale-95 transition"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl px-6 py-2 shadow-lg hover:scale-95 hover:shadow-xl transition"
           >
             ➕ Create Sprint
           </button>
         </div>
 
-        {error && <p className="text-red-500 mb-3">{error}</p>}
-        {success && <p className="text-green-600 mb-3">{success}</p>}
+        {error && <p className="text-red-400">{error}</p>}
+        {success && <p className="text-green-400">{success}</p>}
 
         {/* Sprint Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -116,24 +113,24 @@ function AdminSprintsPage() {
               <div
                 key={s.id}
                 data-aos="fade-up"
-                className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition"
+                className="backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-lg p-6 hover:bg-white/20 hover:shadow-2xl transition"
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                <h2 className="text-xl font-bold text-white mb-2">
                   {s.name} 🚀
                 </h2>
-                <p className="text-sm text-gray-500 mb-2">
+                <p className="text-sm text-gray-300 mb-2">
                   📂 Project:{" "}
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-blue-300">
                     {project ? project.name : "N/A"}
                   </span>
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   🟢 Start:{" "}
                   {s.start_date
                     ? new Date(s.start_date).toLocaleDateString()
                     : "Auto"}
                 </p>
-                <p className="text-sm text-gray-500 mb-2">
+                <p className="text-sm text-gray-400">
                   🔴 End: {new Date(s.end_date).toLocaleDateString()}
                 </p>
               </div>
@@ -150,19 +147,21 @@ function AdminSprintsPage() {
 
       {/* Add Sprint Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
           <div
             data-aos="zoom-in"
-            className="bg-white rounded-2xl shadow-lg w-[90%] max-w-md p-6"
+            className="backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-lg w-[90%] max-w-md p-6"
           >
-            <h2 className="text-xl font-semibold mb-4">🆕 Create Sprint</h2>
+            <h2 className="text-xl font-semibold mb-4 text-white">
+              🆕 Create Sprint
+            </h2>
             <form onSubmit={handleAddSprint} className="space-y-4">
               <input
                 type="text"
                 placeholder="Sprint Name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
 
@@ -171,7 +170,7 @@ function AdminSprintsPage() {
                 onChange={(e) =>
                   setForm({ ...form, project_id: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
                 <option value="">Select Project</option>
@@ -189,7 +188,7 @@ function AdminSprintsPage() {
                 onChange={(e) =>
                   setForm({ ...form, end_date: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
 
@@ -197,13 +196,13 @@ function AdminSprintsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+                  className="px-4 py-2 rounded-lg bg-white/10 text-gray-300 hover:bg-white/20 transition"
                 >
                   ❌ Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 transition"
                 >
                   ✅ Create
                 </button>
