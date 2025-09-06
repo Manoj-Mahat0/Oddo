@@ -11,11 +11,21 @@ from .projects_user_view import router as projects_user_view_router
 from .classes import router as classes_router
 from .staff import router as staff_router
 from .students import router as students_router
+from .assignments import router as assignments_router
+from .attendance import router as attendance_router   # 👈 new
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import pathlib, os
 
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="ODDO – Project & Team Management System")
+# MEDIA_DIR absolute path (better than relative)
+PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]   # <-- repo root
+MEDIA_DIR = PROJECT_ROOT / "media"
+
+os.makedirs(MEDIA_DIR, exist_ok=True)
+app.mount("/media", StaticFiles(directory=str(MEDIA_DIR)), name="media")
 
 origins = [
     "*",
@@ -40,6 +50,8 @@ app.include_router(projects_user_view_router)
 app.include_router(classes_router)
 app.include_router(staff_router)
 app.include_router(students_router)
+app.include_router(assignments_router)
+app.include_router(attendance_router)   # 👈 new
 
 
 @app.get("/")

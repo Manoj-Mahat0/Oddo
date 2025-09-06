@@ -54,3 +54,38 @@ def get_class_students(class_id: int,
         raise HTTPException(status_code=404, detail="Class not found")
 
     return cls.students
+
+# Get classes assigned to a student
+@router.get("/{student_id}/classes")
+def get_classes_by_student(student_id: int,
+                           db: Session = Depends(get_db),
+                           current_user: models.User = Depends(utils.get_current_user)) -> List[dict]:
+    """
+    Returns list of classes the given student is enrolled in.
+
+    - Admin/Tester can view any student's classes.
+    - Staff can view only if the staff is assigned to at least one of those classes (optional policy),
+      or you can allow Staff to view any student (choose as per your policy).
+    - Student can view their own classes.
+    """
+    # role based access: allow Admin/Tester always
+    if current_user.role in ["Admin", "Tester"]:
+        pass
+    elif current_user.role == "Student":
+        # students can only view their own classes
+        if current_user.id != student_id:
+            raise HTTPException(status_code=403, detail="Not authorized to view other student's classes")
+    elif current_user.role == "Staff":
+        # optional: allow staff to view any student; or restrict to classes staff manages
+        # If you want restriction: check intersection between staff.assigned_classes and student's classes
+        # For now we'll allow Staff to view any student's classes (change if you want stricter)
+        pass
+    else:
+        raise HTTPException(status_code=403, detail="Not authorized to view student classes")
+
+    student = db.query(models.User).filter(models.User.id == student_id, models.User.role == "Student").first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    # Use relationship: student.enrolled_classes
+    return [{"id": cls.id, "name": cls.name} for cls in student.enrolled_classes]

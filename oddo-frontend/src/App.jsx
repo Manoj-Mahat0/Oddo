@@ -15,6 +15,11 @@ import TesterBugsPage from "./pages/TesterBugsPage";
 import AdminCourse from "./pages/AdminCourse";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffClasses from "./pages/StaffClasses";
+import StaffAssignments from "./pages/StaffAssignments";
+import StudentDashbord from "./pages/StudentDashboard";
+import StudentClasses from "./pages/StudentClasses";
+import StudentAssignments from "./pages/StudentAssignments";
+import AdminAttendance from "./pages/AdminAttendance";
 
 import Landing from "./pages/Landing";
 
@@ -38,7 +43,11 @@ function App() {
       <Route path="/admin/course" element={<AdminCourse />} />
       <Route path="/staff" element={<StaffDashboard />} />
       <Route path="/staff/classes" element={<StaffClasses />} />
-
+      <Route path="/staff/assignments" element={<StaffAssignments />} />
+      <Route path="/student" element={<StudentDashbord />} />
+      <Route path="/student/classes" element={<StudentClasses />} />
+      <Route path="/student/assignments" element={<StudentAssignments />} />
+      <Route path="/admin/attendance" element={<AdminAttendance />} />
 
       {/* <Route 
 

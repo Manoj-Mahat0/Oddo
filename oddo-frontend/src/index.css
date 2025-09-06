@@ -106,3 +106,37 @@ button:focus-visible {
 
 
 
+/* src/index.css ya global.css me add karo (Tailwind layer) */
+.fc {
+  @apply text-sm text-gray-200;
+}
+.fc-toolbar-title {
+  @apply text-lg font-semibold text-white;
+}
+.fc-button {
+  @apply bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded px-3 py-1;
+}
+.fc-daygrid-day-number {
+  @apply text-xs text-gray-400;
+}
+.fc-event {
+  @apply bg-green-600 text-white rounded px-1 py-0.5 text-xs;
+}
+
+.badge-in {
+  @apply bg-emerald-600 text-emerald-50 rounded px-2 py-0.5 text-xs;
+  display: inline-block;
+}
+.badge-out {
+  @apply bg-red-600 text-red-50 rounded px-2 py-0.5 text-xs;
+  display: inline-block;
+}
+
+/* Sunday subtle highlight */
+.fc-sunday {
+  background: rgba(255, 99, 132, 0.03);
+}
+.fc-sunday .fc-daynum {
+  color: #ff6b6b;
+  font-weight: 700;
+}

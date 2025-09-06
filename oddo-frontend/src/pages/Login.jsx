@@ -30,6 +30,8 @@ function Login() {
         navigate("/tester");
       }else if (data.role === "Staff") {
         navigate("/staff");
+      }else if (data.role === "Student") {
+        navigate("/student");
       } else {
         navigate("/");
       }

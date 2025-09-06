@@ -11,6 +11,7 @@ function Sidebar() {
     { name: "Tasks", path: "/admin/tasks", icon: "✅" },
     { name: "Backlogs", path: "/admin/backlogs", icon: "📈" },
     { name: "Course", path: "/admin/course", icon: "📚" },
+    { name: "Attendance", path: "/admin/attendance", icon: "🕒" },
   ];
 
   const handleLogout = () => {
