@@ -13,6 +13,7 @@ from .staff import router as staff_router
 from .students import router as students_router
 from .assignments import router as assignments_router
 from .attendance import router as attendance_router   # 👈 new
+from .finance import router as finance_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import pathlib, os
@@ -52,6 +53,8 @@ app.include_router(staff_router)
 app.include_router(students_router)
 app.include_router(assignments_router)
 app.include_router(attendance_router)   # 👈 new
+app.include_router(finance_router)
+
 
 
 @app.get("/")
