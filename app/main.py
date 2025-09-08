@@ -53,7 +53,7 @@ app.include_router(staff_router)
 app.include_router(students_router)
 app.include_router(assignments_router)
 app.include_router(attendance_router)   # 👈 new
-app.include_router(finance_router)
+# app.include_router(finance_router)
 
 
 
