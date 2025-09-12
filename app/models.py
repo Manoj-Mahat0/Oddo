@@ -136,12 +136,14 @@
 
 # models.py
 from sqlalchemy import (
-    Column, Integer, String, Boolean, ForeignKey, DateTime, Table, Enum, UniqueConstraint, Index
+    Column, Integer, String, Boolean, ForeignKey, DateTime, Table, Enum, UniqueConstraint, Index, Float, Text
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
 import enum
+from sqlalchemy import Text
+from datetime import datetime
 
 # --- Task Status Enum ---
 class TaskStatus(str, enum.Enum):
@@ -190,6 +192,19 @@ class User(Base):
     projects = relationship("Project", secondary=project_members, back_populates="members", lazy="selectin")
     assigned_classes = relationship("Class", secondary=staff_classes, back_populates="staff", lazy="selectin")
     enrolled_classes = relationship("Class", secondary=student_classes, back_populates="students", lazy="selectin")
+
+    # attendance bookkeeping
+    failed_attendance_attempts = Column(Integer, default=0, nullable=False)
+    is_blocked = Column(Boolean, default=False, nullable=False)
+
+    # relationship to Attendance (must match Attendance.user back_populates)
+    attendances = relationship(
+        "Attendance",
+        back_populates="user",
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
+
 
 
 class Invite(Base):
@@ -269,3 +284,95 @@ class Class(Base):
 
     staff = relationship("User", secondary=staff_classes, back_populates="assigned_classes", lazy="selectin")
     students = relationship("User", secondary=student_classes, back_populates="enrolled_classes", lazy="selectin")
+
+
+
+# --- Assignment related tables
+# --- Assignment related tables (corrected for MySQL) ---
+class AssignmentStatus(str, enum.Enum):
+    open = "Open"
+    submitted = "Submitted"
+    graded = "Graded"
+    closed = "Closed"
+
+class Assignment(Base):
+    __tablename__ = "assignments"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255), nullable=False)          # specify length for MySQL
+    description = Column(Text, nullable=True)           # long text use Text
+    created_by = Column(Integer, ForeignKey("users.id"))
+    class_id = Column(Integer, ForeignKey("classes.id"), nullable=True)
+    assigned_to_student = Column(Integer, ForeignKey("users.id"), nullable=True)
+    due_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(Enum(AssignmentStatus, native_enum=False), default=AssignmentStatus.open)
+
+    creator = relationship("User", foreign_keys=[created_by])
+    class_ref = relationship("Class", foreign_keys=[class_id])
+    assigned_student = relationship("User", foreign_keys=[assigned_to_student])
+
+    submissions = relationship("AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan")
+
+
+class AssignmentSubmission(Base):
+    __tablename__ = "assignment_submissions"
+    id = Column(Integer, primary_key=True, index=True)
+    assignment_id = Column(Integer, ForeignKey("assignments.id"))
+    student_id = Column(Integer, ForeignKey("users.id"))
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+    screenshot_path = Column(String(512), nullable=True)   # URL or path length; increase if storing long URLs
+    optional_link = Column(String(512), nullable=True)     # allow long links
+    comment = Column(Text, nullable=True)
+    is_accepted = Column(Boolean, default=False)
+    grader_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    graded_at = Column(DateTime, nullable=True)
+    grade_comment = Column(Text, nullable=True)
+
+    assignment = relationship("Assignment", back_populates="submissions")
+    student = relationship("User", foreign_keys=[student_id])
+    grader = relationship("User", foreign_keys=[grader_id])
+
+
+
+# paste this into your app/models.py replacing the old Attendance class
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime, Float, Text, ForeignKey
+from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
+from .database import Base  # adjust if your Base import path differs
+
+class Attendance(Base):
+    __tablename__ = "attendance"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+
+    # canonical pair columns (preferred)
+    date = Column(DateTime, nullable=True)  # optional date-only (DB had it)
+    punch_in_time = Column(DateTime, nullable=True)
+    punch_out_time = Column(DateTime, nullable=True)
+
+    punch_in_lat = Column(Float, nullable=True)
+    punch_in_lng = Column(Float, nullable=True)
+    punch_out_lat = Column(Float, nullable=True)
+    punch_out_lng = Column(Float, nullable=True)
+
+    punch_in_ip = Column(String(100), nullable=True)
+    punch_out_ip = Column(String(100), nullable=True)
+
+    punch_in_ssid = Column(String(255), nullable=True)
+    punch_out_ssid = Column(String(255), nullable=True)
+
+    # legacy / fallback single-column fields (some rows may still use these)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    ssid = Column(String(255), nullable=True)
+
+    note = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, server_default=func.now(), nullable=True)
+    updated_at = Column(DateTime, onupdate=func.now(), nullable=True)
+
+    # relationship to user (optional convenience)
+    user = relationship("User", back_populates="attendances", lazy="joined")
+

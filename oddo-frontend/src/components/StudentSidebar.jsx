@@ -1,19 +1,19 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-function StaffSidebar() {
+function StudentSidebar({ onLogout }) {
   const location = useLocation();
 
   const links = [
-    { name: "Dashboard", path: "/staff" },
-    { name: "Classes", path: "/staff/classes" },
-    { name: "Assignments", path: "/staff/assignments" },
+    { name: "Dashboard", path: "/student" },
+    { name: "My Class", path: "/student/classes" },
+    { name: "My Assignment", path: "/student/assignments" },
   ];
 
   return (
     <div className="w-64 bg-gray-900 text-white h-screen p-6 flex flex-col shadow-xl">
-      <h2 className="text-2xl font-bold mb-8">👩‍🏫 Staff Panel</h2>
-      <nav className="space-y-3">
+      <h2 className="text-2xl font-bold mb-8">🎓 Student Panel</h2>
+      <nav className="space-y-3 flex-1">
         {links.map((link) => (
           <Link
             key={link.path}
@@ -28,9 +28,16 @@ function StaffSidebar() {
           </Link>
         ))}
       </nav>
+
+      {/* Logout button */}
+      <button
+        onClick={onLogout}
+        className="mt-6 w-full px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition"
+      >
+        Logout
+      </button>
     </div>
   );
 }
 
-export default StaffSidebar;
-// new push
+export default StudentSidebar;

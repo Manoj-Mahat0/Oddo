@@ -16,8 +16,7 @@ function Toast({ title, message, type = "success", onClose, actions = [] }) {
       ? "bg-gray-800 border-red-500"
       : "bg-gray-800 border-blue-500";
 
-  const icon =
-    type === "success" ? "✔️" : type === "error" ? "❌" : "ℹ️";
+  const icon = type === "success" ? "✔️" : type === "error" ? "❌" : "ℹ️";
 
   return (
     <div
@@ -58,6 +57,9 @@ function UsersPage() {
   const [form, setForm] = useState({ full_name: "", email: "", code: "" });
   const [showModal, setShowModal] = useState(false);
 
+  // ✅ New Loading state
+  const [loading, setLoading] = useState(false);
+
   // Toast state
   const [toast, setToast] = useState({
     show: false,
@@ -91,6 +93,7 @@ function UsersPage() {
 
   const handleInvite = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ Start loading
     try {
       const { data } = await API.post("/invites/", form);
       setToast({
@@ -99,7 +102,6 @@ function UsersPage() {
         message: data.message || "Details have been successfully updated.",
         type: "success",
         actions: [
-          { label: "Undo", onClick: () => alert("Undo clicked") },
           { label: "View profile", onClick: () => alert("View profile clicked") },
         ],
       });
@@ -113,6 +115,8 @@ function UsersPage() {
         message: "Failed to send invite",
         type: "error",
       });
+    } finally {
+      setLoading(false); // ✅ Stop loading
     }
   };
 
@@ -248,9 +252,7 @@ function UsersPage() {
                 type="email"
                 placeholder="Email"
                 value={form.email}
-                onChange={(e) =>
-                  setForm({ ...form, email: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -258,9 +260,7 @@ function UsersPage() {
                 type="text"
                 placeholder="Invite Code (e.g. EMP002)"
                 value={form.code}
-                onChange={(e) =>
-                  setForm({ ...form, code: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -274,9 +274,40 @@ function UsersPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 shadow hover:scale-105 hover:shadow-blue-900/40 transition"
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg shadow transition ${
+                    loading
+                      ? "bg-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 hover:shadow-blue-900/40"
+                  }`}
                 >
-                  Send
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send"
+                  )}
                 </button>
               </div>
             </form>

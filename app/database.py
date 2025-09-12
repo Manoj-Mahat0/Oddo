@@ -7,6 +7,8 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "mysql+pymysql://wdacfesn_oddo:Sonix%23007@103.212.121.57:3306/wdacfesn_oddo"
 )
+# DATABASE_URL = "mysql+pymysql://root:@localhost:3306/oddo"
+
 
 engine = create_engine(
     DATABASE_URL,

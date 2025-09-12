@@ -8,9 +8,10 @@ function Sidebar() {
     { name: "Dashboard", path: "/admin", icon: "📊" },
     { name: "Users", path: "/admin/users", icon: "👥" },
     { name: "Projects", path: "/admin/projects", icon: "📂" },
-    { name: "Tasks", path: "/admin/tasks", icon: "✅" },
+    { name: "Sprints", path: "/admin/sprints", icon: "✅" },
     { name: "Backlogs", path: "/admin/backlogs", icon: "📈" },
     { name: "Course", path: "/admin/course", icon: "📚" },
+    { name: "Attendance", path: "/admin/attendance", icon: "🕒" },
   ];
 
   const handleLogout = () => {
@@ -67,3 +68,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+// new push
