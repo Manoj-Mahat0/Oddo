@@ -91,7 +91,7 @@ def punch_in(
     Router-network based check is supported (ALLOWED_ROUTER_IPS).
     """
     # role-based optional restriction (adjust as needed)
-    if getattr(current_user, "role", None) not in ["Staff", "Admin", "Student", None]:
+    if getattr(current_user, "role", None) not in ["Developer", "Tester", "SEO", "HR", "Accountant","Student","Staff","Intern", None]:
         raise HTTPException(status_code=403, detail="Not allowed to punch in")
 
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
@@ -163,9 +163,9 @@ def punch_out(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(utils.get_current_user),
 ):
-    # role & user checks
-    if getattr(current_user, "role", None) not in ["Staff", "Admin", "Student", None]:
-        raise HTTPException(status_code=403, detail="Not allowed to punch out")
+    # require authenticated user and check blocked flag
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
     if not user:
@@ -219,7 +219,6 @@ def punch_out(
     if open_att:
         # Update existing row with punch_out_* columns
         open_att.punch_out_time = now
-        # If your schema uses punch_out_lat / punch_out_lng etc
         if hasattr(open_att, "punch_out_lat"):
             open_att.punch_out_lat = lat
         if hasattr(open_att, "punch_out_lng"):
